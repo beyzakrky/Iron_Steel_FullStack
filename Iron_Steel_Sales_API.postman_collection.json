@@ -1,0 +1,88 @@
+{
+  "info": {
+    "_postman_id": "0a76615d-4a78-4adb-9cc0-89266ef1e308",
+    "name": "Demir Çelik Satış API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44561046",
+    "_collection_link": "https://go.postman.co/collection/44561046-0a76615d-4a78-4adb-9cc0-89266ef1e308?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 - Müşteri Modülü",
+      "item": [
+        {
+          "name": "Tüm Müşterileri Listele",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Ürün Katoloğu",
+      "item": [
+        {
+          "name": "Ürünleri Listele - ID ile-",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Pazarlama & Kampanyalar",
+      "item": [
+        {
+          "name": "Kampanyaları getir",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/campaigns",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "campaigns"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Siparişleri Listele",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
