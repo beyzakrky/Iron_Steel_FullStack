@@ -21,7 +21,7 @@ Sistem, modern kurumsal altyapı standartlarına uygun olarak birbirinden bağı
     JDBC / Hibernate ORM 
               | 
     [PostgreSQL (Isolated Docker Container) ]
-
+```
 
 1. Aşama: Mobil Fikir ve Mimari Seçimi
 
@@ -124,6 +124,8 @@ The system is engineered across three decoupled layers adhering to modern corpor
     JDBC / Hibernate ORM 
               | 
     [PostgreSQL (Isolated Docker Container) ]
+
+```
 
 
 1. Step: Mobile Idea and Architecture Choice 
