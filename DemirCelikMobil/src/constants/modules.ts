@@ -4,6 +4,7 @@ export type ResourceKey =
 | 'orders'
 | 'campaigns'
 | 'visits'
+| 'payments'
 | 'financial_risk';
 
 export interface ModuleDef {
@@ -30,29 +31,41 @@ export const ALL_MODULES: ModuleDef[] = [
     icon: '⚙️',
     title: 'Ürün Kataloğu',
     subtitle: 'Stok durumu ve ton bazlı fiyatlar',
+    screen: 'ProductScreen',
   },
   {
     key: 'orders',
     icon: '📦',
     title: 'Sipariş / Teklif',
     subtitle: 'Yeni sipariş girişi ve durum takibi',
+    screen: 'OrderScreen',
   },
   {
     key: 'campaigns',
     icon: '🏷️',
     title: 'Kampanyalar',
     subtitle: 'Aktif indirim ve fırsatlar',
+    screen: 'CampaignScreen',
   },
   {
     key: 'visits',
     icon: '📍',
     title: 'Ziyaret Raporları',
     subtitle: 'Saha ziyaret geçmişi ve notlar',
+    screen: 'VisitScreen',
+  },
+  {
+    key: 'payments',
+    icon: '💳',
+    title: 'Ödeme Kayıtları',
+    subtitle: 'Tahsilat Geçmişi',
+    screen: 'PaymentScreen',
   },
   {
     key: 'financial_risk',
     icon: '💰',
     title: 'Finansal Risk Analizi',
     subtitle: 'Şirket geneli gecikmiş bakiye raporu',
+    // HENÜZ EKRAN YOK, TAHMİNLEME EKRANI GELECEK. 
   },
 ];

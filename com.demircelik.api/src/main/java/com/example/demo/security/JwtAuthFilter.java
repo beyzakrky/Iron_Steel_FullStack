@@ -28,6 +28,7 @@ import java.util.List;
  * parametreleri dolur gelir
  */
 
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -42,18 +43,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
  
         String authHeader = request.getHeader("Authorization");
+        System.out.println("---- JWT FILTER ---- " + request.getRequestURI());
+        System.out.println("Authorization header: " + authHeader);
  
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("-> Header yok/hatalı format, filtre atlanıyor.");
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = authHeader.substring(7); // "Bearer " kısmını at
  
-        if (jwtUtil.isTokenValid(token)) {
+        String token = authHeader.substring(7);
+        boolean valid = jwtUtil.isTokenValid(token);
+        System.out.println("-> Token geçerli mi: " + valid);
+ 
+        if (valid) {
             String email = jwtUtil.extractEmail(token);
+            System.out.println("-> Token'dan çıkarılan email: " + email);
  
-            userRepository.findByEmail(email).ifPresent(user -> {
+            var userOpt = userRepository.findByEmail(email);
+            System.out.println("-> Bu email ile kullanıcı bulundu mu: " + userOpt.isPresent());
+ 
+            userOpt.ifPresent(user -> {
+                System.out.println("-> Kullanıcının rolü: " + user.getRole());
                 List<GrantedAuthority> authorities =
                         List.of(new SimpleGrantedAuthority(user.getRole()));
  
@@ -61,9 +72,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(user, null, authorities);
  
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("-> SecurityContext'e authentication YAZILDI.");
             });
         }
-
+ 
         filterChain.doFilter(request, response);
     }
 }
+ 
