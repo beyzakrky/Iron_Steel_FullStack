@@ -1,7 +1,15 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AuthResponseDto;
+import com.example.demo.dto.LoginRequestDto;
+import com.example.demo.dto.RegisterRequestDto;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.HashMap;
@@ -9,49 +17,49 @@ import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    // bilgiler database'de app_users tablosuna kadedilir.
 
     @PostMapping("/register")
-    public Map<String, String> register(@RequestBody User user) {
-        Map<String, String> response = new HashMap<>();
-        if(userRepository.findByEmail(user.getEmail()).isPresent()) {
-            response.put("error", "Bu e-posta zaten kayıtlı!");
-            return response;
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDto dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("error", "Bu e-posta ile zaten kayıtlı bir kullanıcı mevcut."));
         }
-        // Varsayılan rol atayalım (Eğer boş geldiyse)
-        if(user.getRole() == null) user.setRole("INTERN");
-        
+        if(userRepository.existsByUsername(dto.getUsername())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("error", "Bu kullanıcı adı zaten alınmış"));
+        }
+
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRole(dto.getRole() != null ? dto.getRole() : "INTERN");
+
         userRepository.save(user);
-        response.put("message", "Kayıt başarıyla tamamlandı!");
-        return response;
+
+        return ResponseEntity.ok(Map.of("message", "Kayıt başarılı"));
     }
 
+    // Veritabanındaki kullanıcı bilgilerini doğrulama
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> credentials) {
-        Map<String, String> response = new HashMap<>();
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    public ResponseEntity<?> logi(@RequestBody LoginRequestDto dto) {
+        User user = userRepository.findByEmail(dto.getEmail()).orElse(null);
 
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        if (user != null && user.getPassword().equals(password)) {
-            // Güvenli veri paketi oluşturuyoruz (Simüle JWT)
-            String rawToken = user.getUsername() + ":" + user.getRole();
-            String token = Base64.getEncoder().encodeToString(rawToken.getBytes());
-            
-            response.put("token", token);
-            response.put("role", user.getRole());
-            response.put("name", user.getUsername());
-        } else {
-            response.put("error", "Hatalı e-posta veya şifre!");
+        if(user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("error", "Bu E-posta veya şifre hatalı"));
         }
-        return response;
+
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(new AuthResponseDto(token, user.getRole(), user.getUsername()));
     }
+
 }
