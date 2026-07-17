@@ -22,7 +22,7 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value ("${jwt.expiration-ms:86400000}") // varsayılan 24 saat
+    @Value ("${jwt.expiration-ms:900000}") // 15 dk yaptım
     private long expirationMs;
 
     private SecretKey getSigningKey() {

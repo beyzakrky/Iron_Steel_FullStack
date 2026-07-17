@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import HazardStripe from '../../components/HazardStripe';
 import DashboardHeader from '../../components/DashboardHeader';
 import ModuleGrid, { RequestStatus } from '../../components/ModuleGrid';
@@ -16,6 +16,12 @@ type Props = {
   onRequestsChanged: () => void;
 };
 
+// Stajyerin garantili varsayılan modülü - ResourcePermissions.java 'daki 
+// INTERN matrisiyle eşleşir. Sabit tutuluyor ki onaylanan başka bir
+// modül geldiğinde bu kartın yeri/anlamı değişmesin.
+
+const HERO_KEY = 'customers';
+
 const InternDashboard: React.FC<Props> = ({
   userName,
   navigation,
@@ -24,8 +30,13 @@ const InternDashboard: React.FC<Props> = ({
   myRequests,
   onRequestsChanged,
 }) => {
-  const openModule = ALL_MODULES.find((m) => allowedResources.includes(m.key));
-  const lockedModules = ALL_MODULES.filter((m) => !allowedResources.includes(m.key));
+  // Hero dışındaki tüm modeülleri gösteriyorz.
+  // bu sayede onaylanan bir modül grid'den kaybolmuyor, açık/tıklanabilir
+  // hale geliyor. Kilitli durumu ModuleGrid içinde, allowedResources'a 
+  // bakılarak belirleniyor. 
+
+  const heroModule = ALL_MODULES.find((m) => m.key === HERO_KEY);
+  const otherModules = ALL_MODULES.filter((m) => m.key !== HERO_KEY);
 
   const handleRequestAccess = async (resource: string) => {
     await requestAccess(resource, 'Stajyer ekranından talep edildi');
@@ -38,27 +49,27 @@ const InternDashboard: React.FC<Props> = ({
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         <DashboardHeader userName={userName} role="INTERN" onLogout={onLogout} eyebrow="STAJYER PANELİ" />
 
-        {/* Stajyerin doğrudan erişebildiği tek modül, büyük ve öne çıkan bir kart olarak */}
-        {openModule && (
+ {/* Stajyerin varsayılan modülü, büyük ve öne çıkan bir kart olarak */}
+        {heroModule && (
           <TouchableOpacity
             style={styles.heroCard}
             activeOpacity={0.85}
-            onPress={() => openModule.screen && navigation.navigate(openModule.screen)}
+            onPress={() => heroModule.screen && navigation.navigate(heroModule.screen)}
           >
-            <Text style={styles.heroIcon}>{openModule.icon}</Text>
-            <Text style={styles.heroTitle}>{openModule.title}</Text>
-            <Text style={styles.heroSubtitle}>{openModule.subtitle}</Text>
+            <Text style={styles.heroIcon}>{heroModule.icon}</Text>
+            <Text style={styles.heroTitle}>{heroModule.title}</Text>
+            <Text style={styles.heroSubtitle}>{heroModule.subtitle}</Text>
             <Text style={styles.heroCta}>Aç →</Text>
           </TouchableOpacity>
         )}
-
+ 
         <Text style={[typography.label, { marginTop: spacing.lg }]}>DİĞER MODÜLLER</Text>
         <Text style={styles.hint}>
-          Bu bölümler direktör onayı gerektirir. İhtiyacınız varsa "İzin İste" ile talep gönderin.
+          Onaylanan modüller burada otomatik olarak açılır. Kilitli olanlar için "İzin İste" ile talep gönderin.
         </Text>
-
+ 
         <ModuleGrid
-          modules={lockedModules}
+          modules={otherModules}
           allowedResources={allowedResources}
           myRequests={myRequests}
           navigation={navigation}
