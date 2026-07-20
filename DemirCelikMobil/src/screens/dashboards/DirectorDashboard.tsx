@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, StyleSheet } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import HazardStripe from '../../components/HazardStripe';
 import DashboardHeader from '../../components/DashboardHeader';
 import ModuleGrid from '../../components/ModuleGrid';
@@ -27,6 +27,9 @@ const DirectorDashboard: React.FC<Props> = ({ userName, navigation, onLogout }) 
         <PendingApprovalsPanel />
 
         <Text style={typography.label}>TÜM MODÜLLER</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('ReportBuilderScreen')} style={{ marginBottom: spacing.md }}>
+          <Text style={{ color: colors.amber, fontWeight: '800' }}> Rapor Oluşturucu </Text>
+        </TouchableOpacity>
         <ModuleGrid
           modules={ALL_MODULES}
           allowedResources={DIRECTOR_RESOURCES}

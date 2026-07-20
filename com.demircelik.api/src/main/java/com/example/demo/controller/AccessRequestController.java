@@ -14,9 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/access-requests")
-@RequiredArgsConstructor
+@RestController // Spring'e u sınıfın bir API denetleyicisi olduğu söylenir.
+@RequestMapping("/api/access-requests") // bura ile başlayan tüm HTTP istekleri yönlendirir.
+@RequiredArgsConstructor // (Lombok) Sınıfın içindeki final tanımlı değişkenler için otomatik constructor oluşturur. 
+// Bu, veritabanı işlemlerini yapacak olan repository'nin Spring tarafından güvenlik bir şekilde 
+// enjekte edilmesini (Dependency Injection) sağlar.
 public class AccessRequestController {
 
     private final AccessRequestRepository accessRequestRepository;
@@ -55,7 +57,7 @@ public class AccessRequestController {
         req.setStatus("APPROVED");
         req.setDecidedBy(director);
         req.setDecidedAt(LocalDateTime.now());
-        req.setExpiresAt(LocalDateTime.now().plusDays(7)); // süreyi ihtiyacınıza göre değiştirin
+        req.setExpiresAt(LocalDateTime.now().plusDays(7)); 
         return accessRequestRepository.save(req);
     }
 

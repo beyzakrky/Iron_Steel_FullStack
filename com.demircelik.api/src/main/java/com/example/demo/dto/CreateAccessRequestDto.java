@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class CreateAccessRequestDto {
     private String resource; // "orders", "payments" vb.
-    private String reason;   // kullanıcının gerekçesi (opsiyonel ama önerilir)
+    private String reason;   // kullanıcının gerekçesi 
 }

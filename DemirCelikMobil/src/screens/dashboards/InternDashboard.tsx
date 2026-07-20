@@ -67,7 +67,9 @@ const InternDashboard: React.FC<Props> = ({
         <Text style={styles.hint}>
           Onaylanan modüller burada otomatik olarak açılır. Kilitli olanlar için "İzin İste" ile talep gönderin.
         </Text>
- 
+        <TouchableOpacity onPress={() => navigation.navigate('ReportBuilderScreen')} style={{ marginBottom: spacing.md }}>
+  <Text style={{ color: colors.amber, fontWeight: '800' }}>📊 Rapor Oluşturucu →</Text>
+</TouchableOpacity>
         <ModuleGrid
           modules={otherModules}
           allowedResources={allowedResources}
