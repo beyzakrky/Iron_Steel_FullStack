@@ -28,6 +28,16 @@ public class SecurityConfig {
         .requestMatchers("/api/auth/**").permitAll() // kayıt/giriş herkese açık
         .anyRequest().authenticated()
         )
+        // token yok/geçersiz/süresi dolmuşsa 401 fırlatır
+        .exceptionHandling(ex -> ex
+        .authenticationEntryPoint((request, response, authException) -> {
+            response.setStatus(401);
+            response.setContentType("application/json");
+            response.getWriter().write(
+                "{\"error\":\"TOKEN_EXPIRED\",\"message\":\"Oturum süresi doldu, lütfen tekrar giriş yapın.\"}"
+            );
+        })
+        )
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 
