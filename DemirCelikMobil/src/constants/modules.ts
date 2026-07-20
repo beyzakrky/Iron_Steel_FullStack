@@ -66,6 +66,6 @@ export const ALL_MODULES: ModuleDef[] = [
     icon: '💰',
     title: 'Finansal Risk Analizi',
     subtitle: 'Şirket geneli gecikmiş bakiye raporu',
-    // HENÜZ EKRAN YOK, TAHMİNLEME EKRANI GELECEK. 
+    screen: 'FinancialRiskScreen',
   },
 ];
