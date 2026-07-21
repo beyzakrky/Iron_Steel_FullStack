@@ -17,9 +17,13 @@ public class AccessControlService {
 
     /**
      * Kullanıcının bir kaynağa erişip erişemeyeceğini söyler.
-     * Sıra: 1) Rolün varsayılan yetkisi var mı?  2) Onaylı ve süresi
+     * Sıra: 
+     * 1) Rolün varsayılan yetkisi var mı? 
+     *  2) Onaylı ve süresi
      * geçmemiş bir erişim talebi var mı?
      */
+
+    
     public boolean canAccess(User user, String resource) {
         if (ResourcePermissions.hasDefaultAccess(user.getRole(), resource)) {
             return true;
@@ -32,11 +36,13 @@ public class AccessControlService {
                         || req.getExpiresAt().isAfter(LocalDateTime.now()))
                 .isPresent();
     }
+    
 
     /**
      * Controller'larda tek satırla kullanılır: erişim yoksa 403 fırlatır.
      * Örnek: accessControlService.assertAccess(currentUser, "orders");
      */
+    
     public void assertAccess(User user, String resource) {
         if (!canAccess(user, resource)) {
             throw new AccessDeniedException(resource);

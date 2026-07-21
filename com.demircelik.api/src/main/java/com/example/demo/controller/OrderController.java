@@ -13,35 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-/*
-Mevcut controllera erişim kontrolü eklemek için;
-AccessControlService'i inject edip, 
-metodun en başında assertAccess(...) çağrılır. 
-
-"orders" ismi ResourcePermissions.java'daki 
-DEFAULT_ACCESS matrisindeki anahtarla birebir eşleşmelidir.
- */
-
-/*
-eski versiyon 
-@RestController
-@RequestMapping("/api/orders")
-@CrossOrigin(origins = "*")
-public class OrderController {
-    private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        accessControlService.assertAccess(currentUser, "orders");  
-        return ResponseEntity.ok(orderService.getAllOrders());
-    }
-}
-*/
-
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor

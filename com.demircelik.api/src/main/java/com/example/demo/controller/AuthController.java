@@ -50,7 +50,7 @@ public class AuthController {
 
     // Veritabanındaki kullanıcı bilgilerini doğrulama
     @PostMapping("/login")
-    public ResponseEntity<?> logi(@RequestBody LoginRequestDto dto) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail()).orElse(null);
 
         if(user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {

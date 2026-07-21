@@ -10,3 +10,6 @@ public class FieldMeta {
     private String label; // örn. Müşteri
     private String type; // STRING | NUMBER |DATE
 }
+
+// ReportController dosyasındaki /schema/{resource} isimle GET metodunda
+// bu nesneler döndürülür. 

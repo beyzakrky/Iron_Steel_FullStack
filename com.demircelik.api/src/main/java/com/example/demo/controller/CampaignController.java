@@ -7,7 +7,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/campaigns")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*") -> gereksiz. aynı işlemi config/WebMvcConfig.java dosyasında yapmıştık.
 public class CampaignController {
     private final CampaignService campaignService;
 

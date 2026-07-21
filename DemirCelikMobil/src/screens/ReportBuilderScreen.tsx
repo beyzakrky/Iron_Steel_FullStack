@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Share,
 } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import api from '../services/api';
@@ -24,6 +25,8 @@ interface FieldMeta {
 type AggFunction = 'SUM' | 'COUNT' | 'AVG' | 'MIN' | 'MAX';
 
 const AGG_FUNCTIONS: AggFunction[] = ['SUM', 'COUNT', 'AVG', 'MIN', 'MAX'];
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const BAR_WIDTH = 70; 
 
 const Chip: React.FC<{ label: string; active: boolean; onPress: () => void }> = ({ label, active, onPress }) => (
   <TouchableOpacity style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
@@ -120,6 +123,32 @@ const ReportBuilderScreen: React.FC = () => {
       .finally(() => setRunning(false));
   }, [resource, groupByField, aggFunction, aggField, dateField, startDate, endDate]);
 
+  const exportCsv = useCallback(async () => {
+    if(!result || result.rows.length === 0) return;
+    const header = result.columns.join(',');
+    const lines = result.rows.map((row) =>
+    result.columns
+  .map((col) => {
+    const v = row[col];
+    const s = v === null || v === undefined ? '' : String(v);
+    return `"${s.replace(/"/g, '""')}"`;
+  })
+.join(',')
+);
+const csv = [header, ...lines].join('\n');
+
+try {
+  // React native'in kendi Share API'si - yeni bir native paket
+  // gerekmez. Kullanıcı, açılan paylaşım menüsünden Gmail'e, Drive'a, Dosyalar'a ya da Whatsapp'a gönderebilir
+  await Share.share({
+    message: csv,
+    title: `${resource}_raporu.csv`,
+  });
+} catch (e) {
+  Alert.alert('Hata', 'Dışa aktarılamadı, tekrar deneyin');
+}
+  }, [result, resource]);
+
   const chartData =
     result && result.rows.length > 0
       ? {
@@ -128,42 +157,45 @@ const ReportBuilderScreen: React.FC = () => {
         }
       : null;
 
-  return (
+      // Kategori sayısına göre grafik genişliğini büyütürüz
+      // Bu, etiketlerin üst üste binmesini önleyen asıl değişiklik. 
+      // Az kategori varsa ekran genişliğini, çok kategori varsa (kategori * BAR_WIDTH) kullanıyoruz
+
+      const chartWidth = chartData? Math.max(SCREEN_WIDTH - spacing.lg * 4, chartData.labels.length * BAR_WIDTH)
+      : SCREEN_WIDTH;
+
+   return (
     <View style={styles.root}>
       <HazardStripe />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         <Text style={typography.eyebrow}>DİNAMİK RAPOR</Text>
         <Text style={styles.title}>Rapor Oluşturucu</Text>
-
-        {/* 1. Kaynak seçimi */}
+ 
         <Text style={typography.label}>VERİ KAYNAĞI</Text>
         <View style={styles.chipRow}>
           {resources.map((r) => (
             <Chip key={r} label={r} active={resource === r} onPress={() => setResource(r)} />
           ))}
         </View>
-
+ 
         {loadingSchema ? (
           <ActivityIndicator color={colors.amber} style={{ marginTop: spacing.lg }} />
         ) : (
           <>
-            {/* 2. Grupla */}
             <Text style={[typography.label, { marginTop: spacing.lg }]}>GRUPLA</Text>
             <View style={styles.chipRow}>
               {stringFields.map((f) => (
                 <Chip key={f.field} label={f.label} active={groupByField === f.field} onPress={() => setGroupByField(f.field)} />
               ))}
             </View>
-
-            {/* 3. Toplama fonksiyonu */}
+ 
             <Text style={[typography.label, { marginTop: spacing.lg }]}>HESAPLA</Text>
             <View style={styles.chipRow}>
               {AGG_FUNCTIONS.map((fn) => (
                 <Chip key={fn} label={fn} active={aggFunction === fn} onPress={() => setAggFunction(fn)} />
               ))}
             </View>
-
-            {/* 4. Toplanacak sayısal alan (COUNT hariç) */}
+ 
             {aggFunction !== 'COUNT' && (
               <>
                 <Text style={[typography.label, { marginTop: spacing.lg }]}>ALAN</Text>
@@ -174,8 +206,7 @@ const ReportBuilderScreen: React.FC = () => {
                 </View>
               </>
             )}
-
-            {/* 5. Opsiyonel tarih filtresi */}
+ 
             {dateFields.length > 0 && (
               <>
                 <Text style={[typography.label, { marginTop: spacing.lg }]}>TARİH ARALIĞI (opsiyonel)</Text>
@@ -202,45 +233,60 @@ const ReportBuilderScreen: React.FC = () => {
                 </View>
               </>
             )}
-
+ 
             <TouchableOpacity style={styles.runButton} onPress={runReport} disabled={running}>
               <Text style={styles.runButtonText}>{running ? 'ÇALIŞIYOR…' : 'RAPORU OLUŞTUR'}</Text>
             </TouchableOpacity>
           </>
         )}
-
-        {/* Sonuçlar */}
+ 
         {result && (
           <View style={styles.resultSection}>
             {chartData && (
               <View style={styles.chartCard}>
-                <BarChart
-                  data={chartData}
-                  width={Dimensions.get('window').width - spacing.lg * 4}
-                  height={220}
-                  yAxisLabel=""
-                  yAxisSuffix=""
-                  fromZero
-                  chartConfig={{
-                    backgroundColor: colors.surface,
-                    backgroundGradientFrom: colors.surface,
-                    backgroundGradientTo: colors.surface,
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(255, 122, 41, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(138, 147, 153, ${opacity})`,
-                    barPercentage: 0.6,
-                  }}
-                  style={{ borderRadius: radii.md }}
-                />
+                {/* YATAY KAYDIRMA: çok kategori varsa grafik genişliyor,
+                    kullanıcı parmağıyla sağa kaydırarak görüyor —
+                    etiketler artık sıkışıp üst üste binmiyor. */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={chartData.labels.length > 5}>
+                  <BarChart
+                    data={chartData}
+                    width={chartWidth}
+                    height={240}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    fromZero
+                    verticalLabelRotation={60}
+                    chartConfig={{
+                      backgroundColor: colors.surface,
+                      backgroundGradientFrom: colors.surface,
+                      backgroundGradientTo: colors.surface,
+                      decimalPlaces: 0,
+                      color: (opacity = 1) => `rgba(255, 122, 41, ${opacity})`,
+                      labelColor: (opacity = 1) => `rgba(138, 147, 153, ${opacity})`,
+                      barPercentage: 0.6,
+                      propsForLabels: { fontSize: 10 },
+                    }}
+                    style={{ borderRadius: radii.md }}
+                  />
+                </ScrollView>
+                {chartData.labels.length > 5 && (
+                  <Text style={styles.scrollHint}>← kaydırarak tüm sonuçları görün →</Text>
+                )}
               </View>
             )}
-
-            <Text style={[typography.label, { marginTop: spacing.md, marginBottom: spacing.sm }]}>
-              SONUÇ TABLOSU ({result.rows.length} satır)
-            </Text>
+ 
+            <View style={styles.resultHeaderRow}>
+              <Text style={typography.label}>SONUÇ TABLOSU ({result.rows.length} satır)</Text>
+              <TouchableOpacity style={styles.exportButton} onPress={exportCsv}>
+                <Text style={styles.exportButtonText}>📤 CSV Dışa Aktar</Text>
+              </TouchableOpacity>
+            </View>
+ 
             {result.rows.map((row, idx) => (
               <View key={idx} style={styles.tableRow}>
-                <Text style={styles.tableGroup}>{String(row.group ?? '—')}</Text>
+                <Text style={styles.tableGroup} numberOfLines={2}>
+                  {String(row.group ?? '—')}
+                </Text>
                 <Text style={styles.tableValue}>
                   {typeof row.value === 'number' ? row.value.toLocaleString('tr-TR') : String(row.value ?? '—')}
                 </Text>
@@ -252,7 +298,7 @@ const ReportBuilderScreen: React.FC = () => {
     </View>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   container: { flex: 1, padding: spacing.lg },
@@ -301,8 +347,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...shadow,
   },
+  scrollHint: { ...typography.bodyMuted, fontSize: 10, marginTop: spacing.xs },
+  resultHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  exportButton: {
+    borderWidth: 1,
+    borderColor: colors.steelBlue,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+  },
+  exportButtonText: { color: colors.steelBlue, fontSize: 11, fontWeight: '700' },
   tableRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -311,8 +374,8 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.xs,
   },
-  tableGroup: { color: colors.textPrimary, fontSize: 13, flex: 1 },
+  tableGroup: { color: colors.textPrimary, fontSize: 13, flex: 1, marginRight: spacing.sm },
   tableValue: { ...typography.mono, color: colors.amber, fontSize: 13, fontWeight: '700' },
 });
-
+ 
 export default ReportBuilderScreen;

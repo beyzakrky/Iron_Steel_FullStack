@@ -10,3 +10,13 @@ public class AuthResponseDto {
     private String role;
     private String name;
 }
+
+// DTO -Data Transfer Object - Veri Transfer Nesnesi 
+// DTO'lar veritabanı nesnelerini (entity) olduğu gibi
+// dışa açmak yerine, sadece istemcinin (burada bizim mobil uygulamamız oluyor)
+// ihtiyacı olan verileri paketleyip gönderiyor.
+
+// @Data lombok kütüphanesinde kullanılan, arkaplanda tüm getter-setterları otomatik olarak yazar.
+
+// Kullanıcı e-posta ve şifresini doğru girdiğinde bir JWT token üretiyor, 
+// kullanıcının rolünü ve adını bir pakete koyuyor.

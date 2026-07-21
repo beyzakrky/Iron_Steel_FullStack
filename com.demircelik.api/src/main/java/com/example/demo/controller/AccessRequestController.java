@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController // Spring'e u sınıfın bir API denetleyicisi olduğu söylenir.
-@RequestMapping("/api/access-requests") // bura ile başlayan tüm HTTP istekleri yönlendirir.
+@RequestMapping("/api/access-requests") // burası ile başlayan tüm HTTP istekleri yönlendirir.
 @RequiredArgsConstructor // (Lombok) Sınıfın içindeki final tanımlı değişkenler için otomatik constructor oluşturur. 
-// Bu, veritabanı işlemlerini yapacak olan repository'nin Spring tarafından güvenlik bir şekilde 
+// Bu, veritabanı işlemlerini yapacak olan repository'nin Spring tarafından güvenli bir şekilde 
 // enjekte edilmesini (Dependency Injection) sağlar.
 public class AccessRequestController {
 

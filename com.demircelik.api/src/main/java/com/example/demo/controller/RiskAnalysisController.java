@@ -24,7 +24,7 @@ public class RiskAnalysisController {
     public List<RiskScoreDto> getRiskAnalysis(@AuthenticationPrincipal User currentUser) {
         // financial_risk zaten ResourcePermissions.java'da sadece Director'a 
         // açık. izin iste akışı normal devam
-        accessControlService.assertAccess(currentUser, "financial-risk");
+        accessControlService.assertAccess(currentUser, "financial_risk");
         return riskAnalysisService.analyzeAll();
     }
 }

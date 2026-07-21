@@ -30,11 +30,18 @@ public class ReportController {
         return reportEngineService.runReport(request);
     }
 
+    // Mobil uygulamadaki ilk açılır menüyü doldurur. Kullanıcıya
+    // "hangi verinin raporunu almak istersin" seçeneklerini sunar
+
     @GetMapping("/schema/{resource}")
     public List<FieldMeta> getSchema(@PathVariable String resource) {
         return ReportSchemaRegistry.getSchema(resource);
     }
 
+    //  Kullanıcı bir kaynak seçtiğinde devreye girer. Bu metot ilgili tablonun kolonlarını
+    // FieldMeta listesi olarak döner. Mobil uygulama da bu kolonlara göre ekrana filtreleme kutucukları
+    //  (checkbox,input) çizer.
+    
     @GetMapping("/resources")
     public List<String> getAvailableResources() {
         return new ArrayList<>(ReportSchemaRegistry.availableResources());

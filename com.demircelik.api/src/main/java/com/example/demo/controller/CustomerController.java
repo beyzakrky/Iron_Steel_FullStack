@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
-@CrossOrigin(origins = "*") //CORS
+// @CrossOrigin(origins = "*") //CORS -> her yerde gerekli değil. 
 
 public class CustomerController {
 
@@ -21,13 +21,13 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    // Mobil uygulama GET http://localhost:80808/api/customers adresine istek tınca açılacak
+    // Mobil uygulama GET http://localhost:80808/api/customers adresine istek atınca açılacak
     @GetMapping
     public ResponseEntity<List<Customer>> getAllCustomers() {
         return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
-    //Belirli bir müşterinin detayonı getirmek için: /api/customers/1
+    //Belirli bir müşterinin detayını getirmek için: /api/customers/1
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
